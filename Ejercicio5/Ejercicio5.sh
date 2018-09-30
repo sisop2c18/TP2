@@ -1,4 +1,4 @@
-	#!/bin/bash
+#!/bin/bash
 
 #################################################
 #			  Sistemas Operativos			 	#
@@ -51,11 +51,6 @@ ErrorSintaxOHelp() {
 Mostrar() { 
 	clear
 
-	if (test $2 -eq 1 || test $3 -eq 1 ); then
-		echo "Uno o ambos archivos se encuentran vacios."
-		exit
-	fi
-
 	numLineas=$(cat "$4" | wc -l)
 	let count=0
 
@@ -93,63 +88,104 @@ Mostrar() {
 Aniadir() { 
 	clear
 
-	if (test $5 -eq 1 || test $6 -eq 1 ); then
-		echo "Uno o ambos archivos se encuentran vacios."
-		exit
-	fi
-
 	# dni nomb ap pais vacio vacio archivPersonas archivPaises
 	numLineas=$(cat "$7" | wc -l)
 	let count=0
 
-	id=$(awk -F ";" -v dni="$1" -v lines="$numLineas" -v c="$count" '{
-		if ($2==dni){
-			print "El dni ya existe.";
-		}else{
-			c++;
-			if (lines==c){
-				print $1+1
-			}		
-		}
-	}' "$7")
-
-	if [ "$id" = "El dni ya existe." ]; then
-		echo "$id"
-	else
+	echo "$numLineas"
+	if (test $numLineas -eq 1); then
 		numLineas=$(cat "$8" | wc -l)
-		let count=0
-		let found=0
+		if (test $numLineas -eq 1); then
+			cadena="1;$1;$3, $2;1"
+			echo "$cadena"
+			echo "$cadena" >> "$7"
+			echo "1;$4" >> "$8"
+		else
+			let count=0
+			let found=0
 
-		idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
-		if ($2==pais){
-			print $1;
-			f++;
-		}else{
-			c++;
-			if (lines==c && f==0){
-				print $1+1
+			idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
+			if ($2==pais){
+				print $1;
+				f++;
+			}else{
+				c++;
+				if (lines==c && f==0){
+					print $1+1
+				}
 			}
-		}
-		}' "$8")
+			}' "$8")
 
-		cadena="$id;$1;$3, $2;$idPais"
-		echo "$cadena"
-		echo "$cadena" >> "$7"
+			cadena="1;$1;$3, $2;$idPais"
+			echo "$cadena"
+			echo "$cadena" >> "$7"
 
-		idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
-		if ($2==pais){
-			print "ok";
-			f++;
-		}else{
-			c++;
-			if (lines==c && f==0){
-				print $1+1
+			idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
+			if ($2==pais){
+				print "ok";
+				f++;
+			}else{
+				c++;
+				if (lines==c && f==0){
+					print $1+1
+				}
 			}
-		}
-		}' "$8")
+			}' "$8")
 
-		if [ "$idPais" != "ok" ]; then
-			echo "$idPais;$4" >> "$8"
+			if [ "$idPais" != "ok" ]; then
+				echo "$idPais;$4" >> "$8"
+			fi
+		fi
+	else
+		id=$(awk -F ";" -v dni="$1" -v lines="$numLineas" -v c="$count" '{
+			if ($2==dni){
+				print "El dni ya existe.";
+			}else{
+				c++;
+				if (lines==c){
+					print $1+1
+				}		
+			}
+		}' "$7")
+
+		if [ "$id" = "El dni ya existe." ]; then
+			echo "$id"
+		else
+			numLineas=$(cat "$8" | wc -l)
+			let count=0
+			let found=0
+
+			idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
+			if ($2==pais){
+				print $1;
+				f++;
+			}else{
+				c++;
+				if (lines==c && f==0){
+					print $1+1
+				}
+			}
+			}' "$8")
+
+			cadena="$id;$1;$3, $2;$idPais"
+			echo "$cadena"
+			echo "$cadena" >> "$7"
+
+			idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
+			if ($2==pais){
+				print "ok";
+				f++;
+			}else{
+				c++;
+				if (lines==c && f==0){
+					print $1+1
+				}
+			}
+			}' "$8")
+
+			if [ "$idPais" != "ok" ]; then
+				echo "$idPais;$4" >> "$8"
+			fi
 		fi
 	fi
 
@@ -159,11 +195,6 @@ Aniadir() {
 #	Funcion para eliminar una persona de la db.
 Eliminar() { 
 	clear
-
-	if (test $2 -eq 1); then
-		echo "El archivo de personas se encuentran vacio."
-		exit
-	fi
 
 	#sed -i '/$1/d' "$3"
 	#awk -F ";" -v dni="$1" '$2==dni {
@@ -183,19 +214,12 @@ Eliminar() {
 #		}
 #	}' "$4"
 
-	
-
 	exit	
 }
 
 #	Funcion para listar todas las personas pertenecientes a un pais.
 Listar() { 
 	clear
-
-	if (test $2 -eq 1 || test $3 -eq 1 ); then
-		echo "Uno o ambos archivos se encuentran vacios."
-		exit
-	fi
 
 	numLineas=$(cat "$5" | wc -l)
 	let count=0
@@ -233,35 +257,34 @@ Listar() {
 	exit
 }
 
-#	Se comprueba que la cantidad de parametros sea 1 2 o 4
-if (test $# -lt 1 || test $# -gt 5 ); then 	
-	ErrorSintaxOHelp 1
-fi
-
 #	Es ayuda ?
-if [ "$1" = "-h" ]; then
-	ErrorSintaxOHelp 0
-elif [ "$1" = "-help" ]; then
-	ErrorSintaxOHelp 0
-elif [ "$1" = "-?" ]; then
-	ErrorSintaxOHelp 0
+if (test $# -eq 1); then 
+	if [ "$1" = "-h" ]; then
+		ErrorSintaxOHelp 0
+	elif [ "$1" = "-help" ]; then
+		ErrorSintaxOHelp 0
+	elif [ "$1" = "-?" ]; then
+		ErrorSintaxOHelp 0
+	fi
 fi
 
 #Compruebo si existe personas.txt
 if test -e "$PWD/personas.txt"; then
 	if test -s "$PWD/personas.txt"; then
-	 		#	Existe el archivo
+	 	#	Existe el archivo
 		archivoPersonas="$PWD"/personas.txt
 		let personasVacio=0
 	else
-	 		#	Archivo Vacio
+	 	#	Archivo Vacio
 		archivoPersonas="$PWD"/personas.txt
+		echo "IdPersona;DNI;Apellido_y_Nombre;idPais" >> "$archivoPersonas"
 		let personasVacio=1
 	fi	
 else
 	#	Archivo Inexistente o Vacio
 	touch personas.txt
 	archivoPersonas="$PWD"/personas.txt
+	echo "IdPersona;DNI;Apellido_y_Nombre;idPais" >> "$archivoPersonas"
 	let personasVacio=1
 fi
 
@@ -273,26 +296,45 @@ if test -e "$PWD/paises.txt"; then
 
 		let paisesVacio=0
 	else
-	 		#	Archivo Vacio
+	 	#	Archivo Vacio
 		archivoPersonas="$PWD"/paises.txt
+		echo "IdPais;nombre" >> "$archivoPaises"
 		let paisesVacio=1
 	fi
 else
 	#	Archivo Inexistente
 	touch paises.txt
 	archivoPaises="$PWD"/paises.txt
+	echo "IdPais;nombre" >> "$archivoPaises"
 	let paisesVacio=1
 fi
 
 #	Me fijo que operacion debo realizar
 if [ "$1" = "-d" ]; then
-	Mostrar $2 $personasVacio $paisesVacio "$archivoPersonas" "$archivoPaises"
+	if (test $# -eq 1); then 
+		Mostrar $2 $personasVacio $paisesVacio "$archivoPersonas" "$archivoPaises"
+	else
+		ErrorSintaxOHelp 1
+	fi
 elif [ "$1" = "-a" ]; then
-	Aniadir $2 "$3" "$4" $5 $personasVacio $paisesVacio "$archivoPersonas" "$archivoPaises"
+	echo "HELLO MOTO"
+	if (test $# -eq 5); then 
+		Aniadir $2 "$3" "$4" $5 $personasVacio $paisesVacio "$archivoPersonas" "$archivoPaises"
+	else
+		ErrorSintaxOHelp 1
+	fi
 elif [ "$1" = "-e" ]; then
-	Eliminar $2 $personasVacio "$archivoPersonas"
+	if (test $# -eq 2); then 
+		Eliminar $2 $personasVacio "$archivoPersonas"
+	else
+		ErrorSintaxOHelp 1
+	fi
 elif [ "$1" = "-p" ]; then
-	Listar $2 $personasVacio $paisesVacio "$archivoPersonas" "$archivoPaises"
+	if (test $# -eq 2); then 
+		Listar $2 $personasVacio $paisesVacio "$archivoPersonas" "$archivoPaises"
+	else
+		ErrorSintaxOHelp 1
+	fi
 else
 	ErrorSintaxOHelp 1
 fi
