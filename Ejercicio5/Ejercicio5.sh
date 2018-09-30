@@ -105,7 +105,7 @@ Aniadir() {
 			let found=0
 
 			idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
-			if ($2==pais){
+			if ((tolower($2))==tolower(pais)){
 				print $1;
 				f++;
 			}else{
@@ -121,7 +121,7 @@ Aniadir() {
 			echo "$cadena" >> "$7"
 
 			idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
-			if ($2==pais){
+			if ((tolower($2))==tolower(pais)){
 				print "ok";
 				f++;
 			}else{
@@ -156,7 +156,7 @@ Aniadir() {
 			let found=0
 
 			idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
-			if ($2==pais){
+			if ((tolower($2))==tolower(pais)){
 				print $1;
 				f++;
 			}else{
@@ -172,7 +172,7 @@ Aniadir() {
 			echo "$cadena" >> "$7"
 
 			idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
-			if ($2==pais){
+			if ((tolower($2))==tolower(pais)){
 				print "ok";
 				f++;
 			}else{
@@ -184,7 +184,11 @@ Aniadir() {
 			}' "$8")
 
 			if [ "$idPais" != "ok" ]; then
-				echo "$idPais;$4" >> "$8"
+				#	Normalizo la string ingresada en primera en mayus despues minus
+				string="$4"
+				string=$(echo "$string" | tr '[:upper:]' '[:lower:]')
+				string="$(tr '[:lower:]' '[:upper:]' <<< ${string:0:1})${string:1}"
+				echo "$idPais;$string" >> "$8"
 			fi
 		fi
 	fi
@@ -212,8 +216,18 @@ Eliminar() {
 #				print "El dni no existe.";
 #			}	
 #		}
-#	}' "$4"
+#	}' "$3"
+	string=";$1;"
+	echo "$string"
+	#ESTE AWK NO FUNCA 
+	
+	awk '!/$string/' "$3"
 
+	#ESTE SED FUNCA
+
+	#sed -i "\|$string|d" "$3"
+
+	#awk '!/pattern/' "$3" > temp && mv temp "$3"
 	exit	
 }
 
@@ -226,7 +240,7 @@ Listar() {
 	let found=0
 
 	idPais=$(awk -F ";" -v pais="$1" -v lines="$numLineas" -v c="$count" -v f="$found" '{
-		if ($2==pais){
+		if ((tolower($2))==tolower(pais)){
 			printf ("%d", $1);
 			f++;
 		}else{
