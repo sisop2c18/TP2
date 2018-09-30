@@ -1,0 +1,4 @@
+IdPersona;DNI;Apellido_y_Nombre;idPais
+1;3333333;Pereira, Lucas;1
+2;1111111;Gallo, Juan;2
+3;2222222;Calvo, Martin;1
