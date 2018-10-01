@@ -51,7 +51,20 @@ ErrorSintaxOHelp() {
 Mostrar() { 
 	clear
 
-	numLineas=$(cat "$4" | wc -l)
+	numLineas=$(cat "$2" | wc -l)
+
+	if (test $numLineas -eq 1); then
+		echo "No se encuentran personas registradas."
+		exit
+	fi
+
+	numLineas1=$(cat "$3" | wc -l)
+
+	if (test $numLineas1 -eq 1); then
+		echo "ERROR FATAL! Hay personas registradas pero no hay paises."
+		exit
+	fi
+
 	let count=0
 
 	person=$(awk -F ";" -v dni="$1" -v lines="$numLineas" -v c="$count" '{
@@ -63,7 +76,7 @@ Mostrar() {
 				print "El dni no existe.";
 			}	
 		}
-	}' "$4")
+	}' "$2")
 
 	if [ "$person" = "El dni no existe." ]; then
 		echo "$person"
@@ -77,8 +90,10 @@ Mostrar() {
 		awk -F ";" -v idp="$idPer" -v dni="$dni" -v ap="$ape" -v n="$nomb" -v id="$idPais" '{
 			if ($1==id){
 				printf ("%d %d %s %s %s\n", idp, dni, ap, n, $2);	
+			}else{
+				print "ERROR FATAL! No se ha encontrado el pais vinculado a la persona seleccionada."
 			}
-		}' "$5"
+		}' "$3"
 	fi
 
 	exit	
@@ -88,18 +103,16 @@ Mostrar() {
 Aniadir() { 
 	clear
 
-	# dni nomb ap pais vacio vacio archivPersonas archivPaises
-	numLineas=$(cat "$7" | wc -l)
+	# dni nomb ap pais archivPersonas archivPaises
+	numLineas=$(cat "$5" | wc -l)
 	let count=0
 
-	echo "$numLineas"
 	if (test $numLineas -eq 1); then
-		numLineas=$(cat "$8" | wc -l)
+		numLineas=$(cat "$6" | wc -l)
 		if (test $numLineas -eq 1); then
 			cadena="1;$1;$3, $2;1"
-			echo "$cadena"
-			echo "$cadena" >> "$7"
-			echo "1;$4" >> "$8"
+			echo "$cadena" >> "$5"
+			echo "1;$4" >> "$6"
 		else
 			let count=0
 			let found=0
@@ -114,11 +127,10 @@ Aniadir() {
 					print $1+1
 				}
 			}
-			}' "$8")
+			}' "$6")
 
 			cadena="1;$1;$3, $2;$idPais"
-			echo "$cadena"
-			echo "$cadena" >> "$7"
+			echo "$cadena" >> "$5"
 
 			idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
 			if ((tolower($2))==tolower(pais)){
@@ -130,10 +142,10 @@ Aniadir() {
 					print $1+1
 				}
 			}
-			}' "$8")
+			}' "$6")
 
 			if [ "$idPais" != "ok" ]; then
-				echo "$idPais;$4" >> "$8"
+				echo "$idPais;$4" >> "$6"
 			fi
 		fi
 	else
@@ -146,12 +158,13 @@ Aniadir() {
 					print $1+1
 				}		
 			}
-		}' "$7")
+		}' "$5")
 
 		if [ "$id" = "El dni ya existe." ]; then
 			echo "$id"
+			exit
 		else
-			numLineas=$(cat "$8" | wc -l)
+			numLineas=$(cat "$6" | wc -l)
 			let count=0
 			let found=0
 
@@ -165,11 +178,10 @@ Aniadir() {
 					print $1+1
 				}
 			}
-			}' "$8")
+			}' "$6")
 
 			cadena="$id;$1;$3, $2;$idPais"
-			echo "$cadena"
-			echo "$cadena" >> "$7"
+			echo "$cadena" >> "$5"
 
 			idPais=$(awk -F ";" -v pais="$4" -v lines="$numLineas" -v c="$count" -v f="$found" '{
 			if ((tolower($2))==tolower(pais)){
@@ -181,17 +193,19 @@ Aniadir() {
 					print $1+1
 				}
 			}
-			}' "$8")
+			}' "$6")
 
 			if [ "$idPais" != "ok" ]; then
 				#	Normalizo la string ingresada en primera en mayus despues minus
 				string="$4"
 				string=$(echo "$string" | tr '[:upper:]' '[:lower:]')
 				string="$(tr '[:lower:]' '[:upper:]' <<< ${string:0:1})${string:1}"
-				echo "$idPais;$string" >> "$8"
+				echo "$idPais;$string" >> "$6"
 			fi
 		fi
 	fi
+
+	echo "Ha sido dado de alta."
 
 	exit	
 }
@@ -200,34 +214,16 @@ Aniadir() {
 Eliminar() { 
 	clear
 
-	#sed -i '/$1/d' "$3"
-	#awk -F ";" -v dni="$1" '$2==dni {
-	#	rm $0;
-	#	printf "%d %d %s %d %d\n", $1, $2, $3, $4, $NR}' "$3"
-	#numLineas=$(cat "$4" | wc -l)
-	#let count=0
+	numLineas=$(cat "$2" | wc -l)
 
-	#awk -F ";" -v dni="$1" -v lines="$numLineas" -v c="$count" '{
-	#	if ($2==dni){
+	if (test $numLineas -eq 1); then
+		echo "No se encuentran personas registradas."
+	else
+		string=";$1;"
 
-#		}else{
-#			c++;
-#			if (lines==c){
-#				print "El dni no existe.";
-#			}	
-#		}
-#	}' "$3"
-	string=";$1;"
-	echo "$string"
-	#ESTE AWK NO FUNCA 
-	
-	awk '!/$string/' "$3"
+		awk "!/$string/" "$2" > temp && mv temp "$2"
+	fi
 
-	#ESTE SED FUNCA
-
-	#sed -i "\|$string|d" "$3"
-
-	#awk '!/pattern/' "$3" > temp && mv temp "$3"
 	exit	
 }
 
@@ -235,9 +231,16 @@ Eliminar() {
 Listar() { 
 	clear
 
-	numLineas=$(cat "$5" | wc -l)
+	numLineas=$(cat "$3" | wc -l)
 	let count=0
 	let found=0
+
+	numLineas=$(cat "$2" | wc -l)
+
+	if (test $numLineas -eq 1); then
+		echo "No se encuentran personas registradas."
+		exit
+	fi
 
 	idPais=$(awk -F ";" -v pais="$1" -v lines="$numLineas" -v c="$count" -v f="$found" '{
 		if ((tolower($2))==tolower(pais)){
@@ -249,12 +252,12 @@ Listar() {
 				print "El pais no existe.";
 			}
 		}
-	}' "$5")
+	}' "$3")
 
 	if [ "$idPais" = "El pais no existe." ]; then
 		echo "$idPais"
 	else
-		numLineas=$(cat "$4" | wc -l)
+		numLineas=$(cat "$2" | wc -l)
 		let count=0
 		awk -F ";" -v id="$idPais" -v lines="$numLineas" -v c="$count" '{
 			if ($4==id){
@@ -265,11 +268,13 @@ Listar() {
 					print "No hay ninguna persona que pertenezca a ese pais.";
 				}	
 			}
-		}' "$4"
+		}' "$2"
 	fi	
 
 	exit
 }
+
+###################################################################################
 
 #	Es ayuda ?
 if (test $# -eq 1); then 
@@ -287,19 +292,16 @@ if test -e "$PWD/personas.txt"; then
 	if test -s "$PWD/personas.txt"; then
 	 	#	Existe el archivo
 		archivoPersonas="$PWD"/personas.txt
-		let personasVacio=0
 	else
 	 	#	Archivo Vacio
 		archivoPersonas="$PWD"/personas.txt
 		echo "IdPersona;DNI;Apellido_y_Nombre;idPais" >> "$archivoPersonas"
-		let personasVacio=1
 	fi	
 else
 	#	Archivo Inexistente o Vacio
 	touch personas.txt
 	archivoPersonas="$PWD"/personas.txt
 	echo "IdPersona;DNI;Apellido_y_Nombre;idPais" >> "$archivoPersonas"
-	let personasVacio=1
 fi
 
 #Compruebo si existe paises.txt
@@ -307,45 +309,41 @@ if test -e "$PWD/paises.txt"; then
 	if test -s "$PWD/paises.txt"; then
 	 	#	Existe el archivo
 		archivoPaises="$PWD"/paises.txt
-
-		let paisesVacio=0
 	else
 	 	#	Archivo Vacio
 		archivoPersonas="$PWD"/paises.txt
 		echo "IdPais;nombre" >> "$archivoPaises"
-		let paisesVacio=1
 	fi
 else
 	#	Archivo Inexistente
 	touch paises.txt
 	archivoPaises="$PWD"/paises.txt
 	echo "IdPais;nombre" >> "$archivoPaises"
-	let paisesVacio=1
 fi
 
 #	Me fijo que operacion debo realizar
 if [ "$1" = "-d" ]; then
-	if (test $# -eq 1); then 
-		Mostrar $2 $personasVacio $paisesVacio "$archivoPersonas" "$archivoPaises"
+	if (test $# -eq 2); then 
+		Mostrar $2 "$archivoPersonas" "$archivoPaises"
 	else
 		ErrorSintaxOHelp 1
 	fi
 elif [ "$1" = "-a" ]; then
 	echo "HELLO MOTO"
 	if (test $# -eq 5); then 
-		Aniadir $2 "$3" "$4" $5 $personasVacio $paisesVacio "$archivoPersonas" "$archivoPaises"
+		Aniadir $2 "$3" "$4" $5 "$archivoPersonas" "$archivoPaises"
 	else
 		ErrorSintaxOHelp 1
 	fi
 elif [ "$1" = "-e" ]; then
 	if (test $# -eq 2); then 
-		Eliminar $2 $personasVacio "$archivoPersonas"
+		Eliminar $2 "$archivoPersonas"
 	else
 		ErrorSintaxOHelp 1
 	fi
 elif [ "$1" = "-p" ]; then
 	if (test $# -eq 2); then 
-		Listar $2 $personasVacio $paisesVacio "$archivoPersonas" "$archivoPaises"
+		Listar $2 "$archivoPersonas" "$archivoPaises"
 	else
 		ErrorSintaxOHelp 1
 	fi
