@@ -1,4 +1,21 @@
 #!/bin/bash
+
+#################################################
+#			  Sistemas Operativos			 	#
+#		Trabajo Práctico 2 - Ejericio 4			#
+#		Nombre del Script: ejercicio4.sh		#
+#												#
+#				Integrantes:					#
+#         Miller, Lucas            39353278		#
+#         Ramos, Micaela           39266928		#
+#         Sapaya, Nicolás Martín   38319489		#
+#         Schafer, Federico        39336856		#
+#         Secchi, Lucas            39267345		#
+#												#
+#		Instancia de Entrega: Entrega			#
+#												#
+#################################################
+
 arch="$1"
 
 function signal_SIGUSR1(){ 
