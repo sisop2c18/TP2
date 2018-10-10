@@ -3,7 +3,7 @@
 #################################################
 #			  Sistemas Operativos			 	#
 #		Trabajo Práctico 2 - Ejericio 2			#
-#		Nombre del Script: Ejercicio2.sh		#
+#		Nombre del Script: ejercicio2.sh		#
 #												#
 #				Integrantes:					#
 #         Miller, Lucas            39353278		#
