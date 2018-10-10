@@ -64,7 +64,7 @@ Mostrar() {
 		echo "ERROR FATAL! Hay personas registradas pero no hay paises."
 		exit
 	fi
-
+	
 	let count=0
 
 	person=$(awk -F ";" -v dni="$1" -v lines="$numLineas" -v c="$count" '{
@@ -77,6 +77,8 @@ Mostrar() {
 			}	
 		}
 	}' "$2")
+	
+	let count=0
 
 	if [ "$person" = "El dni no existe." ]; then
 		echo "$person"
@@ -87,11 +89,14 @@ Mostrar() {
 		nomb="$(cut -d' ' -f4 <<<"$person")"
 		idPais="$(cut -d' ' -f5 <<<"$person")"
 
-		awk -F ";" -v idp="$idPer" -v dni="$dni" -v ap="$ape" -v n="$nomb" -v id="$idPais" '{
+		awk -F ";" -v idp="$idPer" -v dni="$dni" -v ap="$ape" -v n="$nomb" -v lines="$numLineas1" -v c="$count" -v id="$idPais" '{
 			if ($1==id){
 				printf ("%d %d %s %s %s\n", idp, dni, ap, n, $2);	
 			}else{
-				print "ERROR FATAL! No se ha encontrado el pais vinculado a la persona seleccionada."
+				c++;
+				if (lines==c){				
+					print "ERROR FATAL! No se ha encontrado el pais vinculado a la persona seleccionada."
+				}			
 			}
 		}' "$3"
 	fi
@@ -218,10 +223,31 @@ Eliminar() {
 
 	if (test $numLineas -eq 1); then
 		echo "No se encuentran personas registradas."
+		exit
+	fi
+	
+	let count=0
+
+	person=$(awk -F ";" -v dni="$1" -v lines="$numLineas" -v c="$count" '{
+		if ($2!=dni){
+			c++;
+			if (lines==c){
+				print "El dni no existe.";
+			}
+		}else{
+			print "El dni existe.";	
+		}
+	}' "$2")
+	
+	let count=0
+
+	if [ "$person" = "El dni no existe." ]; then
+		echo "$person"
 	else
 		string=";$1;"
 
 		awk "!/$string/" "$2" > temp && mv temp "$2"
+		echo "Dni borrado."
 	fi
 
 	exit	
@@ -329,7 +355,6 @@ if [ "$1" = "-d" ]; then
 		ErrorSintaxOHelp 1
 	fi
 elif [ "$1" = "-a" ]; then
-	echo "HELLO MOTO"
 	if (test $# -eq 5); then 
 		Aniadir $2 "$3" "$4" $5 "$archivoPersonas" "$archivoPaises"
 	else
