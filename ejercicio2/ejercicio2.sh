@@ -62,7 +62,8 @@ if (test $# -eq 1); then
 	fi
 fi
 
-if [ $# -eq 0 ] || [ "$1" -lt 0 ] ; then
+es_numero='^-?[0-9]+([.][0-9]+)?$'
+if [ $# -eq 0 ] || [ "$1" -lt 0 ] || ! [[ "$1" =~ $es_numero ]]; then
 ErrorSintaxOHelp
 fi
 
