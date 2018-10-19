@@ -12,7 +12,7 @@
 #         Schafer, Federico        39336856		#
 #         Secchi, Lucas            39267345		#
 #												#
-#		Instancia de Entrega: Entrega			#
+#		Instancia de Entrega: Re Entrega		#
 #												#
 #################################################
 
@@ -347,6 +347,32 @@ else
 	echo "IdPais;nombre" >> "$archivoPaises"
 fi
 
+if  [[ -r "$archivoPaises" ]]; then ## Chequeo los permisos de lectura de ambos archivos
+	if  [[ -r "$archivoPersonas" ]]; then
+		## todo ok
+		lectura=1
+	else
+		echo "No tiene permisos para leer personas.txt"
+		exit
+	fi
+else
+	echo "No tiene permisos para leer paises.txt"
+	exit
+fi
+
+if  [[ -w "$archivoPaises" ]]; then ## Chequeo los permisos de escritura de ambos archivos
+	if  [[ -w "$archivoPersonas" ]]; then
+		## todo ok
+		escritura=1
+	else
+		echo "No tiene permisos para escribir personas.txt"
+		exit
+	fi
+else
+	echo "No tiene permisos para escribir paises.txt"
+	exit
+fi
+
 #	Me fijo que operacion debo realizar
 if [ "$1" = "-d" ]; then
 	if (test $# -eq 2); then 
@@ -356,7 +382,7 @@ if [ "$1" = "-d" ]; then
 	fi
 elif [ "$1" = "-a" ]; then
 	if (test $# -eq 5); then 
-		Aniadir $2 "$3" "$4" $5 "$archivoPersonas" "$archivoPaises"
+		Aniadir $2 "$3" "$4" "$5" "$archivoPersonas" "$archivoPaises"
 	else
 		ErrorSintaxOHelp 1
 	fi
