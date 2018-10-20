@@ -50,14 +50,18 @@ if (test $# -eq 1); then
 	fi
 fi
 
-inotifywait -e modify,create,delete -r $1 -q -m |
-
-while read path action file; do
-        if [[ "$file" =~ $2$ ]] | [[ "*" == $2 ]]; then
-		if [[ "$action" =~ "CREATE" ]]; then accion="CREADO"; fi
-		if [[ "$action" =~ "MODIFY" ]]; then accion="MODIFICADO"; fi
-		if [[ "$action" =~ "DELETE" ]]; then accion="ELIMINADO"; fi
-            	echo "El archivo $file fue $accion"
-        fi
+if [[ -d "$1" ]]; then
+	inotifywait -e modify,create,delete -r $1 -q -m |
+	while read path action file; do
+    if [[ "$file" =~ $2$ ]] || [[ "*" == $2 ]]; then
+		  if [[ "$action" =~ "CREATE" ]]; then accion="CREADO"; fi
+	 	  if [[ "$action" =~ "MODIFY" ]]; then accion="MODIFICADO"; fi
+		  if [[ "$action" =~ "DELETE" ]]; then accion="ELIMINADO"; fi
+    	echo "El archivo $file fue $accion"
+    fi
+	done
+else
+	echo "No existe el directorio"
+fi
 done
 
