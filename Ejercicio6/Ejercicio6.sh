@@ -74,15 +74,18 @@ if  [[ ! -w "$1" ]]; then
 fi
 
 if [[ -d "$1" ]]; then
-	inotifywait -e modify,create,delete -r $1 -q -m |
+	inotifywait -e modify,create,delete,moved_from,moved_to -r $1 -q -m |
 	while read path action file; do
-    if [[ ( "$file" =~ $2$ ) || ( "*" = "$2" ) ]]; then
-		  if [[ "$action" =~ "CREATE" ]]; then accion="CREADO"; fi
-	 	  if [[ "$action" =~ "MODIFY" ]]; then accion="MODIFICADO"; fi
-		  if [[ "$action" =~ "DELETE" ]]; then accion="ELIMINADO"; fi
-    	echo "El archivo $file fue $accion"
-    fi
+	    if [[ ( "$file" =~ $2$ ) || ( "*" = "$2" ) ]]; then
+			  if [[ "$action" =~ "CREATE" ]]; then accion="CREADO"; fi
+		 	  if [[ "$action" =~ "MODIFY" ]]; then accion="MODIFICADO"; fi
+			  if [[ "$action" =~ "DELETE" ]]; then accion="ELIMINADO"; fi
+			  if [[ "$action" =~ "MOVED_FROM" ]]; then accion="RENOMBRADO"; fi
+			  	if [[ "$action" =~ "MOVED_TO" ]]; then accion="MODIFICADO"; fi
+	    	echo "$file fue $accion `date`"
+	    fi
 	done
 else
 	echo "No existe el directorio"
 fi
+
