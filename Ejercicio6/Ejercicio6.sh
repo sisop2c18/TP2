@@ -13,7 +13,7 @@
 #         Schafer, Federico        39336856		#
 #         Secchi, Lucas            39267345		#
 #							#
-#		Instancia de Entrega: Entrega		#
+#		Instancia de Entrega: Re Entrega		#
 #							#
 #################################################
 
@@ -31,6 +31,10 @@ ErrorSintaxOHelp() {
 	fi
 	echo "Ejemplo:"
 	echo "$0" '"path" ".txt"'
+	echo "$0" '"path" ".*"'
+	echo "$0" '"path" "*"'
+	echo "Si existe la carpeta a dentro del directorio donde se encuentra $0"
+	echo "$0" '"a" "*"'
 	echo ""
 	echo 'Para ayuda:'
 	echo "$0 -h"
@@ -50,10 +54,29 @@ if (test $# -eq 1); then
 	fi
 fi
 
+if (test $# -ne 2); then 
+	ErrorSintaxOHelp 1
+fi
+
+if [ ! -d "$1" ]; then
+	echo "No existe el directorio."
+	exit
+fi
+
+if  [[ ! -r "$1" ]]; then
+	echo "No tiene permisos para leer."
+	exit
+fi
+
+if  [[ ! -w "$1" ]]; then
+	echo "No tiene permisos para escribir."
+	exit
+fi
+
 if [[ -d "$1" ]]; then
 	inotifywait -e modify,create,delete -r $1 -q -m |
 	while read path action file; do
-    if [[ "$file" =~ $2$ ]] || [[ "*" == $2 ]]; then
+    if [[ ( "$file" =~ $2$ ) || ( "*" = "$2" ) ]]; then
 		  if [[ "$action" =~ "CREATE" ]]; then accion="CREADO"; fi
 	 	  if [[ "$action" =~ "MODIFY" ]]; then accion="MODIFICADO"; fi
 		  if [[ "$action" =~ "DELETE" ]]; then accion="ELIMINADO"; fi
@@ -63,5 +86,3 @@ if [[ -d "$1" ]]; then
 else
 	echo "No existe el directorio"
 fi
-done
-
