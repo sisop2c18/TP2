@@ -1,21 +1,4 @@
 #!/bin/bash
-
-#################################################
-#			  Sistemas Operativos			 	#
-#		Trabajo Práctico 2 - Ejericio 4			#
-#		Nombre del Script: ejercicio4.sh		#
-#												#
-#				Integrantes:					#
-#         Miller, Lucas            39353278		#
-#         Ramos, Micaela           39266928		#
-#         Sapaya, Nicolás Martín   38319489		#
-#         Schafer, Federico        39336856		#
-#         Secchi, Lucas            39267345		#
-#												#
-#		Instancia de Entrega: Entrega			#
-#												#
-#################################################
-
 arch="$1"
 
 function signal_SIGUSR1(){ 
@@ -23,6 +6,7 @@ function signal_SIGUSR1(){
 	echo -e "El usuario $(whoami) realizo el evento SIGUSR1. Ocurrio el dia: $(date +"%d-%m-%y") a las $(date +"%T")" >> "$arch"
 	free -m | awk 'NR==2 {porcentaje=$4/$2 * 100; print "\nPorcentaje de memoria libre: " porcentaje"%"}' >> "$arch"
 	free -m | awk 'NR==2 {porcentaje=$3/$2 * 100; print "\nPorcentaje de memoria usada: " porcentaje"%"}' >> "$arch"
+	grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print "\nPorcentaje de CPU en uso: " usage"%"}' >> "$arch"
 }
 function signal_SIGUSR2(){
 	echo "********************************************************************************************" >> "$arch"
