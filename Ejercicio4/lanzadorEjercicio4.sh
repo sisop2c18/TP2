@@ -1,11 +1,27 @@
 #!/bin/bash
 
+#################################################
+#			  Sistemas Operativos		#
+#		Trabajo Práctico 2 - Ejericio 4		#
+#	Nombre del Script: lanzadorEjercicio4.sh	#
+#							#
+#				Integrantes:		#
+#         Miller, Lucas            39353278		#
+#         Ramos, Micaela           39266928		#
+#         Sapaya, Nicolás Martín   38319489		#
+#         Schafer, Federico        39336856		#
+#         Secchi, Lucas            39267345		#
+#							#
+#		Instancia de Entrega: Re Entrega		#
+#							#
+#################################################
+
 function ayuda(){
 	echo "NAME"
-	echo "   Ejercicio4.sh"
+	echo "   lanzadorEjercicio4.sh"
 	echo " "
 	echo "SYNOPSIS"
-	echo "  ./LanzadorEjercicio4.sh ./archivo.log "
+	echo "  ./lanzadorEjercicio4.sh ./archivo.log "
 	echo "	kill -s SIGUSR1 nroProceso"
 	echo "	kill -s SIGUSR2 nroProceso"
 	echo "	kill -s SIGTERM nroProceso"
