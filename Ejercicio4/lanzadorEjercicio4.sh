@@ -38,7 +38,12 @@ if [ ! -f "$1" ];then
 fi
 
 if  [[ ! -r "$1" ]]; then
-	echo "No tiene permisos para leer el log"
+	echo "No tiene permisos para leer el log."
+	exit
+fi
+
+if  [[ ! -w "$1" ]]; then
+	echo "No tiene permisos para escribir el log."
 	exit
 fi
 

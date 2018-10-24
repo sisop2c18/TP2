@@ -28,6 +28,16 @@ trap signal_SIGUSR2 12
 
 trap signal_SIGTERM 15
 
+if  [[ ! -r "$1" ]]; then
+	echo "No tiene permisos para leer el log."
+	exit
+fi
+
+if  [[ ! -w "$arch" ]]; then
+	echo "No tiene permisos para escribir el log."
+	exit
+fi
+
 while true; do
 	sleep 1
 done
